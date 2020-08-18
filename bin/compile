@@ -148,6 +148,10 @@ mkdir -p "$BUILD_DIR/.local"
 mv "$WORK_DIR/vendor/ghc-libs" "$BUILD_DIR/vendor"
 mv "$WORK_DIR/.local/bin" "$BUILD_DIR/.local"
 
+speak "Making static files available"
+mkdir -p "$BUILD_DIR/client"
+cp -Rp "$WORK_DIR/client/dist" "$BUILD_DIR/client"
+
 speak "Caching .stack-work"
 rsync -avq "$WORK_DIR/.stack-work/" "$SANDBOX_DIR"
 cp -Rp "$WORK_DIR/.stack-work" "$BUILD_DIR"
