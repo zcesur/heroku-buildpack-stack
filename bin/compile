@@ -28,6 +28,7 @@ fi
 WORK_DIR=/app
 cp -Rp "$BUILD_DIR/." "$WORK_DIR"
 mkdir -p "$WORK_DIR/vendor/bin"
+mkdir -p "$WORK_DIR/vendor/lib"
 mkdir -p "$WORK_DIR/vendor/ghc-libs"
 
 PROFILE_DIR="$BUILD_DIR/.profile.d"
@@ -61,6 +62,33 @@ if [ ! -e "$LIBGMP_DIR" ]; then
 fi
 speak "Restoring $LIBGMP_VER files from cache"
 cp -Rp "$LIBGMP_DIR/ghc-libs/." "$WORK_DIR/vendor/ghc-libs"
+
+########## node ###############################################
+NODE_VER=${NODE_VER:-12.18.3}
+NODE_URL=${NODE_URL:-https://nodejs.org/dist/v"$NODE_VER"/node-v"$NODE_VER"-linux-x64.tar.xz}
+NODE_DIR="$CACHE_DIR/node-$NODE_VER"
+if [ ! -e "$NODE_DIR" ]; then
+  speak "Downloading node-$NODE_VER"
+  mkdir -p "$NODE_DIR"
+  curl -# -L "$NODE_URL" | tar xJ -C "$NODE_DIR" --strip-components=1
+fi
+speak "Restoring node-$NODE_VER"
+cp "$NODE_DIR/bin/node" "$WORK_DIR/vendor/bin"
+cp -Rp "$NODE_DIR/lib"/* "$WORK_DIR/vendor/lib"
+chmod a+x "$WORK_DIR/vendor/bin/node"
+
+########## yarn ###############################################
+YARN_URL="https://yarnpkg.com/latest.tar.gz"
+YARN_DIR="$CACHE_DIR/yarn"
+if [ ! -e "$YARN_DIR" ]; then
+  speak "Downloading yarn"
+  mkdir -p "$YARN_DIR"
+  curl -# -L "$YARN_URL" | tar xz -C "$YARN_DIR" --strip-components=1
+fi
+speak "Restoring yarn"
+cp "$YARN_DIR/bin"/* "$WORK_DIR/vendor/bin"
+cp -Rp "$YARN_DIR/lib"/* "$WORK_DIR/vendor/lib"
+chmod a+x "$WORK_DIR/vendor/bin/yarn"
 
 ########## stack exe ###############################################
 STACK_VER=${STACK_VER:-2.3.1}
